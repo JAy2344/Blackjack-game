@@ -1,0 +1,117 @@
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Scanner;
+public class Blackjack {
+private List<String> deck;
+private List<String> playerHand;
+private List<String> dealerHand;
+private Scanner scanner;
+public Blackjack() {
+initializeDeck();
+shuffleDeck();
+playerHand = new ArrayList<>();
+dealerHand = new ArrayList<>();
+scanner = new Scanner(System.in);
+}
+private void initializeDeck() {
+deck = new ArrayList<>();
+String[] ranks = { "Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10",
+"Jack", "Queen", "King" };
+String[] suits = { "Hearts", "Diamonds", "Clubs", "Spades" };
+for (String suit : suits) {
+for (String rank : ranks) {
+deck.add(rank + " of " + suit);
+}
+}
+}
+private void shuffleDeck() {
+Collections.shuffle(deck);
+}
+private int calculatePoints(List<String> hand) {
+int points = 0;
+int numAces = 0;
+for (String card : hand) {
+String rank = card.split(" ")[0];
+if (rank.equals("Ace")) {
+points += 11;
+numAces++;
+}
+else if (rank.equals("King") || rank.equals("Queen") ||
+rank.equals("Jack")) {
+points += 10;
+}
+else {
+points += Integer.parseInt(rank);
+}
+}
+while (points > 21 && numAces > 0) {
+points -= 10;
+numAces--;
+}
+return points;
+}
+private void dealInitialCards() {
+playerHand.add(drawCard());
+dealerHand.add(drawCard());
+playerHand.add(drawCard());
+dealerHand.add(drawCard());
+}
+private String drawCard() {
+return deck.remove(0);
+}
+private void playerTurn() {
+while (true) {
+System.out.println("Player's turn:");
+displayHand(playerHand);
+System.out.print("Do you want to hit or stand? (h/s): ");
+String choice = scanner.nextLine().toLowerCase();
+if (choice.equals("h")) {
+playerHand.add(drawCard());
+if (calculatePoints(playerHand) > 21) {
+System.out.println("Player busts! Dealer wins!");
+return;
+}
+}
+else if (choice.equals("s")) {
+break;
+}
+}
+}
+private void dealerTurn() {
+System.out.println("Dealer's turn:");
+displayHand(dealerHand);
+while (calculatePoints(dealerHand) < 17) {
+dealerHand.add(drawCard());
+displayHand(dealerHand);
+}
+if (calculatePoints(dealerHand) > 21) {
+System.out.println("Dealer busts! Player wins!");
+}
+else if (calculatePoints(dealerHand) > calculatePoints(playerHand)) {
+System.out.println("Dealer wins!");
+}
+else if (calculatePoints(dealerHand) < calculatePoints(playerHand)) {
+System.out.println("Player wins!");
+}
+else {
+System.out.println("It's a tie!");
+}
+}
+private void displayHand(List<String> hand) {
+for (String card : hand) {
+System.out.println(card);
+}
+System.out.println("Total Points: " + calculatePoints(hand));
+}
+public void playGame() {
+System.out.println("Welcome to Blackjack!");
+dealInitialCards();
+playerTurn();
+dealerTurn();
+}
+public static void main(String[] args) {
+Blackjack game = new Blackjack();
+game.playGame();
+}
+}
